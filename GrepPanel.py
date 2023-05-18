@@ -13,14 +13,14 @@ class GrepPanelGotoCommand(sublime_plugin.TextCommand):
             if syntax != 'GrepStyleFind.sublime-syntax':
                 fallback = True
         if fallback:
-            fallback_command = args["command"] if "command" in args else None
+            fallback_command = args.get('command')
             if fallback_command:
-                new_args = dict({"event": args["event"]}.items())
-                new_args.update(dict(args["args"].items()))
+                new_args = dict({'event': args['event']}.items())
+                new_args.update(dict(args['args'].items()))
                 self.view.run_command(fallback_command, new_args)
             return
-        event = args["event"]
-        point = self.view.window_to_text((event["x"], event["y"]))
+        event = args['event']
+        point = self.view.window_to_text((event['x'], event['y']))
         coord_reg = self.view.find(r'\d+:\d+', self.view.line(point).begin())
         coord_txt = self.view.substr(coord_reg)
         row, col = map(int, coord_txt.split(':'))
