@@ -83,12 +83,17 @@ class GrepStyleFindCommand(sublime_plugin.TextCommand):
             if col > max_col:
                 max_col = col
         Region = sublime.Region
-        result_lines = []
-        highlight_regions = []
         wr = len(str(max_row))
         wc = len(str(max_col))
-        offset = 0
         col_offset = wr + 1 + wc + 2
+        stat = f"{len(results)} occurrences of '"
+        begin = len(stat)
+        stat += self.pattern
+        end = len(stat)
+        stat += "'\n"
+        offset = len(stat)
+        result_lines = [stat]
+        highlight_regions = [Region(begin, end)]
         for row, col, region, line in results:
             linetext = view.substr(line)
             stripped = linetext.lstrip()
@@ -99,13 +104,13 @@ class GrepStyleFindCommand(sublime_plugin.TextCommand):
                 stripped = stripped[:97] + '...'
             line_with_rowcol = f'{row:>{wr}}:{col:<{wc}}   {stripped}'
             result_lines.append(line_with_rowcol)
+            offset += 1
             begin = offset + col_offset + col - indenter
             offset += len(line_with_rowcol)
             end = begin + region.size()
             if end > offset:
                 end = offset
             highlight_regions.append(Region(begin, end))
-            offset += 1
         result_text = '\n'.join(result_lines)
 
         window = view.window()
