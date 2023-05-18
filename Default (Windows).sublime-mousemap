@@ -1,0 +1,7 @@
+[
+    {
+        "button": "button1", "count": 2,
+        "press_command": "grep_panel_goto",
+        "press_args": {"command": "drag_select", "args": {"by": "words"}}
+    }
+]

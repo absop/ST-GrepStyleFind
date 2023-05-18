@@ -1,0 +1,18 @@
+{
+    // region.redish
+    // region.orangish
+    // region.yellowish
+    // region.greenish
+    // region.cyanish
+    // region.bluish
+    // region.purplish
+    // region.pinkish
+    // comment
+    "color": "comment",
+
+    // When there not words selected, auto select word?
+    "auto_select": true,
+
+    // Words separator characters, used to strip words
+    "word_separators": "|\\\n\f\t /:,;<>.+=-_~`'\"!@#$%^&*({[（《·：、，；。—￥！？…‘’“”》）]})",
+}

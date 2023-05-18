@@ -1,0 +1,27 @@
+[
+    {
+        "caption": "Find Selection",
+        "children": [
+            {
+                "caption": "Literal (Case Sensitive)",
+                "command": "grep_style_find",
+                "args": { "literal": true, "ignorecase": false }
+            },
+            {
+                "caption": "Literal (Ignore Case)",
+                "command": "grep_style_find",
+                "args": { "literal": true, "ignorecase": true }
+            },
+            {
+                "caption": "Regexp (Case Sensitive)",
+                "command": "grep_style_find",
+                "args": { "literal": false, "ignorecase": false }
+            },
+            {
+                "caption": "Regexp (Ignore Case)",
+                "command": "grep_style_find",
+                "args": { "literal": false, "ignorecase": true }
+            }
+        ]
+    }
+]

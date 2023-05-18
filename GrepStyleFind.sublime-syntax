@@ -1,0 +1,15 @@
+%YAML 1.2
+---
+# [Subl]: https://www.sublimetext.com/docs/3/syntax.html
+
+hidden: true
+scope: output.grep
+
+contexts:
+  main:
+    - match: (\d+)(:)(\d+)\s+(.+)
+      captures:
+        1: constant.numeric.line-number.grep
+        2: punctuation.separator.grep
+        3: constant.numeric.col-number.grep
+        4: meta.string.grep line-content.grep
