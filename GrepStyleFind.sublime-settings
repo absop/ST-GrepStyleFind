@@ -10,6 +10,18 @@
     // comment
     "color": "comment",
 
+    "output_panel_settings": {
+        "wrap_width": 100,
+        "word_wrap": false,
+        "rulers": [100],
+    },
+
+    "find_options": {
+        "case_sensitive": false,
+        "regexp": false,
+        "whole_word": false,
+    },
+
     // When there not words selected, auto select word?
     "auto_select": true,
 

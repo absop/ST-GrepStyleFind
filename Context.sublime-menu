@@ -1,26 +1,29 @@
 [
     {
-        "caption": "Find Selection",
+        "caption": "Grep Style Find",
         "children": [
             {
-                "caption": "Literal (Case Sensitive)",
-                "command": "grep_style_find",
-                "args": { "literal": true, "ignorecase": false }
+                "caption": "Find Selection",
+                "command": "grep_find_selection"
+            },
+            {   "caption": "-" },
+            {
+                "caption": "Regular Expression",
+                "command": "grep_set_find_option",
+                "args": { "option": "regexp" },
+                "checkbox": true
             },
             {
-                "caption": "Literal (Ignore Case)",
-                "command": "grep_style_find",
-                "args": { "literal": true, "ignorecase": true }
+                "caption": "Case Sensitive",
+                "command": "grep_set_find_option",
+                "args": { "option": "case_sensitive" },
+                "checkbox": true
             },
             {
-                "caption": "Regexp (Case Sensitive)",
-                "command": "grep_style_find",
-                "args": { "literal": false, "ignorecase": false }
-            },
-            {
-                "caption": "Regexp (Ignore Case)",
-                "command": "grep_style_find",
-                "args": { "literal": false, "ignorecase": true }
+                "caption": "Whole Word",
+                "command": "grep_set_find_option",
+                "args": { "option": "whole_word" },
+                "checkbox": true
             }
         ]
     }
