@@ -9,7 +9,9 @@ class GrepFindSelectionCommand(sublime_plugin.TextCommand):
     max_line_width = 100
 
     def is_enabled(self):
-        return self.get_selection() is not None
+        if self.view.element() is None:
+            return self.get_selection() is not None
+        return False
 
     def run(self, edit):
         if self.pattern is None:
