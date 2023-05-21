@@ -28,16 +28,23 @@ class GrepFindSelectionCommand(sublime_plugin.TextCommand):
             region = selections[0]
             if not region.empty():
                 if region.size() < self.max_line_width:
-                    content = view.substr(region)
-                    if '\n' not in content and content.strip():
-                        self.selection = view.find(content, region.begin())
+                    row_a = view.rowcol(region.a)[0]
+                    row_b = view.rowcol(region.b)[0]
+                    if row_a != row_b:
+                        return
+                    if content := view.substr(region).strip():
+                        self.selection = view.find(content, region.begin(),
+                            flags=sublime.FindFlags.LITERAL
+                            )
                         self.pattern = content
             elif Settings.auto_select:
                 region = view.word(region)
                 if 0 < region.size() < self.max_line_width:
                     word = view.substr(region).strip(Settings.word_separators)
                     if len(word) > 0:
-                        self.selection = view.find(word, region.begin())
+                        self.selection = view.find(word, region.begin(),
+                            flags=sublime.FindFlags.LITERAL
+                            )
                         self.pattern = word
         return self.pattern
 
