@@ -4,6 +4,11 @@ import sublime
 import sublime_plugin
 
 
+class GrepSummarySelectionsCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return self.view.has_non_empty_selection_region()
+
+
 class GrepFindSelectionCommand(sublime_plugin.TextCommand):
     pattern = None
     max_line_width = 100
@@ -140,6 +145,10 @@ class GrepFindSelectionCommand(sublime_plugin.TextCommand):
             flags=sublime.DRAW_OUTLINED
             )
         window.run_command('show_panel', {'panel': 'output.GrepStyleFind'})
+
+
+class GrepFindInputCommand(sublime_plugin.TextCommand):
+    pass
 
 
 class GrepGotoCommand(sublime_plugin.TextCommand):

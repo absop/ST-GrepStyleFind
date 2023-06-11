@@ -1,0 +1,22 @@
+[
+    {
+        "caption": "Preferences: GrepStyleFind Settings",
+        "command": "edit_settings",
+        "args": {
+          "base_file": "${packages}/GrepStyleFind/GrepStyleFind.sublime-settings",
+          "default": "/*\n\tGrepStyleFind user settings in here override the default\n*/\n{\n\t$0\n}\n"
+          }
+    },
+    {
+        "caption": "GrepStyleFind: Find Selection",
+        "command": "grep_find_selection",
+    },
+    {
+        "caption": "GrepStyleFind: Find Input",
+        "command": "grep_find_input",
+    },
+    {
+        "caption": "GrepStyleFind: Summary Selection",
+        "command": "grep_summary_selction",
+    },
+]
