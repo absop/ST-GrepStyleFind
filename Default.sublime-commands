@@ -12,11 +12,11 @@
         "command": "grep_find_selection",
     },
     {
-        "caption": "GrepStyleFind: Find Input",
+        "caption": "GrepStyleFind: Input to Find",
         "command": "grep_find_input",
     },
     {
-        "caption": "GrepStyleFind: Summary Selection",
-        "command": "grep_summary_selction",
+        "caption": "GrepStyleFind: Summarize Selections",
+        "command": "grep_summarize_selections",
     },
 ]

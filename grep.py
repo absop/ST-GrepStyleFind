@@ -3,57 +3,91 @@ import re
 import sublime
 import sublime_plugin
 
-
-class GrepSummarySelectionsCommand(sublime_plugin.TextCommand):
-    def is_enabled(self):
-        return self.view.has_non_empty_selection_region()
+from collections import namedtuple
 
 
-class GrepFindSelectionCommand(sublime_plugin.TextCommand):
-    pattern = None
-    max_line_width = 100
+Header = namedtuple('Header', ['stat', 'jump_point', 'emph_region'])
 
-    def is_enabled(self):
-        if self.view.element() is None:
-            return self.get_selection() is not None
-        return False
 
-    def run(self, edit):
-        if self.pattern is None:
-            if self.get_selection() is None:
-                return
-        self.grep()
+def summarize_regions_with_context(view, regions, header=None):
+    results = []
+    max_row = 0
+    max_col = 0
+    max_line_length = Settings.max_line_length
+    for region in regions:
+        row, col = view.rowcol(region.a)
+        row += 1
+        col += 1
+        line = view.line(region)
+        if line.size() > max_line_length:
+            pass
+        results.append((row, col, region, line))
+        if row > max_row:
+            max_row = row
+        if col > max_col:
+            max_col = col
+    Region = sublime.Region
+    wr = len(str(max_row))
+    wc = len(str(max_col))
+    col_offset = wr + 1 + wc + 2
+    highlight_regions = []
+    if header is not None:
+        stat = header.stat
+        highlight_regions.append(header.emph_region)
+        header_jump_point = header.jump_point
+    else:
+        header_jump_point = None
+        count = len(results)
+        plurar = 's' if count > 1 else ''
+        stat = f'{count} selection{plurar}\n'
+    offset = len(stat)
+    result_lines = [stat]
+    for row, col, region, line in results:
+        linetext = view.substr(line)
+        stripped = linetext.lstrip()
+        indenter = len(linetext) - len(stripped)
+        stripped = stripped.rstrip()
+        # TODO: stripped should contain the matched word
+        if len(stripped) > max_line_length:
+            stripped = stripped[:max_line_length-3] + '...'
+        line_with_rowcol = f'{row:>{wr}}:{col:<{wc}}   {stripped}'
+        result_lines.append(line_with_rowcol)
+        offset += 1
+        begin = offset + col_offset + col - indenter
+        offset += len(line_with_rowcol)
+        end = begin + region.size()
+        if end > offset:
+            end = offset
+        highlight_regions.append(Region(begin, end))
+    result_text = '\n'.join(result_lines)
 
-    def get_selection(self):
-        view = self.view
-        selections = view.sel()
-        self.pattern = None
-        self.selection = None
-        if selections:
-            region = selections[0]
-            if not region.empty():
-                if region.size() < self.max_line_width:
-                    row_a = view.rowcol(region.a)[0]
-                    row_b = view.rowcol(region.b)[0]
-                    if row_a != row_b:
-                        return
-                    if content := view.substr(region).strip():
-                        self.selection = view.find(content, region.begin(),
-                            flags=sublime.FindFlags.LITERAL
-                            )
-                        self.pattern = content
-            elif Settings.auto_select:
-                region = view.word(region)
-                if 0 < region.size() < self.max_line_width:
-                    word = view.substr(region).strip(Settings.word_separators)
-                    if len(word) > 0:
-                        self.selection = view.find(word, region.begin(),
-                            flags=sublime.FindFlags.LITERAL
-                            )
-                        self.pattern = word
-        return self.pattern
+    create_summary_panel(
+        view,
+        result_text,
+        highlight_regions,
+        header_jump_point
+        )
 
-    def grep(self):
+
+def create_summary_panel(view, text, regions, header_jump_point):
+    window = view.window()
+    panel = window.create_output_panel('GrepStyleFind')
+    panel.assign_syntax('GrepStyleFind.sublime-syntax')
+    panel.settings().update(Settings.panel_settings)
+    panel.settings()['main_view.header_jump_point'] = header_jump_point
+    panel.settings()['main_view.id'] = view.id()
+    panel.set_read_only(False)
+    panel.run_command('append', {'characters': text})
+    panel.set_read_only(True)
+    panel.add_regions('*grep*', regions,
+        scope=Settings.color,
+        flags=sublime.DRAW_OUTLINED
+        )
+    window.run_command('show_panel', {'panel': 'output.GrepStyleFind'})
+
+
+class GrepFinder(sublime_plugin.TextCommand):
+    def find_all(self, pattern):
         find_options = Settings.storage.get('find_options', {})
         case_sensitive = find_options.get('case_sensitive', False)
         regexp = find_options.get('regexp', False)
@@ -61,7 +95,6 @@ class GrepFindSelectionCommand(sublime_plugin.TextCommand):
 
         flags = 0
         options = []
-        pattern = self.pattern
         if regexp:
             options.append('regex')
         else:
@@ -77,78 +110,98 @@ class GrepFindSelectionCommand(sublime_plugin.TextCommand):
                 pattern = re.escape(pattern)
             pattern = rf'\b{pattern}\b'
 
-        view = self.view
-        results = []
-        max_row = 0
-        max_col = 0
-        max_line_width = self.max_line_width
-        for region in view.find_all(pattern, flags):
-            row, col = view.rowcol(region.a)
-            row += 1
-            col += 1
-            line = view.line(region)
-            if line.size() > max_line_width:
-                pass
-            results.append((row, col, region, line))
-            if row > max_row:
-                max_row = row
-            if col > max_col:
-                max_col = col
-        Region = sublime.Region
-        wr = len(str(max_row))
-        wc = len(str(max_col))
-        col_offset = wr + 1 + wc + 2
-        count = len(results)
+        return options, self.view.find_all(pattern, flags)
+
+    def grep(self, pattern, position=None):
+        options, regions = self.find_all(pattern)
+        count = len(regions)
         plurar = 'es' if count > 1 else ''
         stat = f"{count} match{plurar} of '"
         begin = len(stat)
-        stat += self.pattern
+        stat += pattern
         end = len(stat)
         if options:
             stat += f"' ({', '.join(options)})\n"
         else:
             stat += f"'\n"
-        offset = len(stat)
-        result_lines = [stat]
-        highlight_regions = [Region(begin, end)]
-        for row, col, region, line in results:
-            linetext = view.substr(line)
-            stripped = linetext.lstrip()
-            indenter = len(linetext) - len(stripped)
-            stripped = stripped.rstrip()
-            # TODO: stripped should contain the matched word
-            if len(stripped) > 100:
-                stripped = stripped[:97] + '...'
-            line_with_rowcol = f'{row:>{wr}}:{col:<{wc}}   {stripped}'
-            result_lines.append(line_with_rowcol)
-            offset += 1
-            begin = offset + col_offset + col - indenter
-            offset += len(line_with_rowcol)
-            end = begin + region.size()
-            if end > offset:
-                end = offset
-            highlight_regions.append(Region(begin, end))
-        result_text = '\n'.join(result_lines)
+        header = Header(stat, position, sublime.Region(begin, end))
+        summarize_regions_with_context(self.view, regions, header)
 
-        window = view.window()
-        settings = Settings.panel_settings.copy()
-        settings['main_view.id'] = view.id()
-        settings['main_view.backpoint'] = self.selection.a
-        panel = window.create_output_panel('GrepStyleFind')
-        panel.assign_syntax('GrepStyleFind.sublime-syntax')
-        panel.settings().update(settings)
-        panel.set_read_only(False)
-        panel.run_command('append', {'characters': result_text})
-        panel.set_read_only(True)
-        panel.add_regions('*grep*', highlight_regions,
-            scope=Settings.color,
-            flags=sublime.DRAW_OUTLINED
+
+class GrepFindSelectionCommand(GrepFinder):
+    pattern = None
+
+    def is_enabled(self):
+        if self.view.element() is None:
+            return self.get_selection() is not None
+        return False
+
+    def run(self, edit):
+        if self.pattern is None:
+            if self.get_selection() is None:
+                return
+        self.grep(self.pattern, self.selection.a)
+
+    def get_selection(self):
+        view = self.view
+        selections = view.sel()
+        self.pattern = None
+        self.selection = None
+        if selections:
+            region = selections[0]
+            if not region.empty():
+                if region.size() < Settings.max_line_length:
+                    row_a = view.rowcol(region.a)[0]
+                    row_b = view.rowcol(region.b)[0]
+                    if row_a != row_b:
+                        return
+                    if content := view.substr(region).strip():
+                        self.selection = view.find(content, region.begin(),
+                            flags=sublime.FindFlags.LITERAL
+                            )
+                        self.pattern = content
+            elif Settings.auto_select:
+                region = view.word(region)
+                if 0 < region.size() < Settings.max_line_length:
+                    word = view.substr(region).strip(Settings.word_separators)
+                    if len(word) > 0:
+                        self.selection = view.find(word, region.begin(),
+                            flags=sublime.FindFlags.LITERAL
+                            )
+                        self.pattern = word
+        return self.pattern
+
+
+class PatternInputHandler(sublime_plugin.TextInputHandler):
+    def placeholder(self):
+        return 'Pattern'
+
+    def initial_text(self):
+        return ''
+
+    def validate(self, pattern):
+        if pattern:
+            return True
+        return False
+
+
+class GrepFindInputCommand(GrepFinder):
+    def run(self, edit, pattern):
+        self.grep(pattern)
+
+    def input(self, args):
+        return PatternInputHandler()
+
+
+class GrepSummarizeSelectionsCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return self.view.has_non_empty_selection_region()
+
+    def run(self, edit):
+        summarize_regions_with_context(
+            self.view,
+            self.view.sel(),
             )
-        window.run_command('show_panel', {'panel': 'output.GrepStyleFind'})
-
-
-class GrepFindInputCommand(sublime_plugin.TextCommand):
-    pass
 
 
 class GrepGotoCommand(sublime_plugin.TextCommand):
@@ -181,7 +234,9 @@ class GrepGotoCommand(sublime_plugin.TextCommand):
             row, col = map(int, coord_txt.split(':'))
             point = main_view.text_point(row - 1, col - 1)
         else:
-            point = self.view.settings().get('main_view.backpoint')
+            point = self.view.settings().get('main_view.header_jump_point')
+            if point is None:
+                return
         main_view.show_at_center(point)
         main_view.sel().clear()
         main_view.sel().add(point)
@@ -208,6 +263,7 @@ class Settings:
         cls.panel_settings = cls.storage.get('output_panel_settings', {})
         cls.auto_select = cls.storage.get('auto_select', True)
         cls.word_separators = cls.storage.get('word_separators', '')
+        cls.max_line_length = cls.storage.get('max_line_length', 100)
 
     @classmethod
     def save(cls):
