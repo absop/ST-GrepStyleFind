@@ -10,12 +10,12 @@
 				"id": "package-settings",
 				"children": [
 					{
-						"caption": "GrepStyleFind",
+						"caption": "LineFinder",
 						"children": [
 							{
 								"caption": "README",
 								"command": "open_file",
-								"args": {"file": "${packages}/GrepStyleFind/README.md"}
+								"args": {"file": "${packages}/LineFinder/README.md"}
 							},
 							{ "caption": "-" },
 							{
@@ -23,7 +23,7 @@
 								"command": "edit_settings",
 								"mnemonic": "S",
 								"args": {
-									"base_file": "${packages}/GrepStyleFind/GrepStyleFind.sublime-settings",
+									"base_file": "${packages}/LineFinder/LineFinder.sublime-settings",
 									"default": "{\n\t$0\n}\n"
 								}
 							}

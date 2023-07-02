@@ -7,12 +7,23 @@
     // region.bluish
     // region.purplish
     // region.pinkish
-    // comment
+    // comment, string ...
     "color": "comment",
 
+    // Used to get selection and truncate lines
     "max_line_length": 100,
 
-    "output_panel_settings": {
+    "output_panel.keep_indent": true,
+
+    // One-to-one mode:
+    //   Highlight multiple matches in single line, no line truncation
+    //   Indent is keeped according to user settings
+    // Otherwise:
+    //   Indent will be stripped
+    //   Content will be truncated according to match's location
+    "output_panel.unique_line": true,
+
+    "output_panel.settings": {
         "wrap_width": 100,
         "word_wrap": false,
         "rulers": [100],
@@ -20,7 +31,7 @@
 
     "find_options": {
         "case_sensitive": false,
-        "regexp": false,
+        "regex": false,
         "whole_word": false,
     },
 

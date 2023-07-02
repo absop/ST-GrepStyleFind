@@ -1,0 +1,15 @@
+%YAML 1.2
+---
+# [Subl]: https://www.sublimetext.com/docs/3/syntax.html
+
+hidden: true
+scope: output.line-finder
+
+contexts:
+  main:
+    - match: (\d+)(?:(:)(\d+))?\s+(.+)
+      captures:
+        1: constant.numeric.line-number.line-finder
+        2: punctuation.separator.line-finder
+        3: constant.numeric.col-number.line-finder
+        4: meta.string.line-finder line-content.line-finder

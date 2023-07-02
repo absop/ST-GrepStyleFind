@@ -1,22 +1,22 @@
 [
     {
-        "caption": "Preferences: GrepStyleFind Settings",
+        "caption": "Preferences: LineFinder Settings",
         "command": "edit_settings",
         "args": {
-          "base_file": "${packages}/GrepStyleFind/GrepStyleFind.sublime-settings",
-          "default": "/*\n\tGrepStyleFind user settings in here override the default\n*/\n{\n\t$0\n}\n"
+          "base_file": "${packages}/LineFinder/LineFinder.sublime-settings",
+          "default": "/*\n\tLineFinder user settings in here override the default\n*/\n{\n\t$0\n}\n"
           }
     },
     {
-        "caption": "GrepStyleFind: Find Selection",
-        "command": "grep_find_selection",
+        "caption": "LineFinder: Find Selection",
+        "command": "line_finder_find_selection",
     },
     {
-        "caption": "GrepStyleFind: Input to Find",
-        "command": "grep_find_input",
+        "caption": "LineFinder: Input to Find",
+        "command": "line_finder_find_input",
     },
     {
-        "caption": "GrepStyleFind: Summarize Selections",
-        "command": "grep_summarize_selections",
+        "caption": "LineFinder: Summarize Selections",
+        "command": "line_finder_summarize_selections",
     },
 ]

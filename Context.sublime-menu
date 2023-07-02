@@ -1,27 +1,27 @@
 [
     {
-        "caption": "Grep Style Find",
+        "caption": "Line Finder",
         "children": [
             {
                 "caption": "Find Selection",
-                "command": "grep_find_selection"
+                "command": "line_finder_find_selection"
             },
             {   "caption": "-" },
             {
                 "caption": "Regular Expression",
-                "command": "grep_set_find_option",
-                "args": { "option": "regexp" },
+                "command": "line_finder_toggle_option",
+                "args": { "option": "regex" },
                 "checkbox": true
             },
             {
                 "caption": "Case Sensitive",
-                "command": "grep_set_find_option",
+                "command": "line_finder_toggle_option",
                 "args": { "option": "case_sensitive" },
                 "checkbox": true
             },
             {
                 "caption": "Whole Word",
-                "command": "grep_set_find_option",
+                "command": "line_finder_toggle_option",
                 "args": { "option": "whole_word" },
                 "checkbox": true
             }

@@ -1,7 +1,7 @@
 [
     {
         "button": "button1", "count": 2,
-        "press_command": "grep_goto",
+        "press_command": "line_finder_goto_match",
         "press_args": {"command": "drag_select", "args": {"by": "words"}}
     }
 ]
