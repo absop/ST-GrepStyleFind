@@ -155,8 +155,11 @@ def create_summary_panel(view, text, regions, region_jump_point):
     panel = window.create_output_panel('LineFinder')
     panel.assign_syntax('LineFinder.sublime-syntax')
     panel.settings().update(Settings.panel_settings)
-    panel.settings()['master_view.region_jump_point'] = region_jump_point
-    panel.settings()['master_view.id'] = view.id()
+    panel.settings().update({
+        'master_view.region_jump_point': region_jump_point,
+        'master_view.id': view.id(),
+        'translate_tabs_to_spaces': False
+    })
     panel.set_read_only(False)
     panel.run_command('append', {'characters': text})
     panel.set_read_only(True)
@@ -371,6 +374,19 @@ class LineFinderSummarizeSelectionsCommand(sublime_plugin.TextCommand):
             )
 
 
+class LineFinderToggleSummaryPanelCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        if self.window.active_panel() == 'output.LineFinder':
+            self.window.run_command("hide_panel", {"cancel": True})
+        else:
+            if self.window.find_output_panel('LineFinder'):
+                self.window.run_command(
+                    'show_panel', {'panel': 'output.LineFinder'}
+                )
+            else:
+                sublime.status_message('No summary panel found')
+
+
 class LineFinderGotoMatchCommand(sublime_plugin.TextCommand):
     regions_key = '__LineFinder__.goto'
     highlight_token = 0
@@ -404,7 +420,7 @@ class LineFinderGotoMatchCommand(sublime_plugin.TextCommand):
             return
 
         def clear_region(token):
-            if token > 0 and token == cls.highlight_token:
+            if token == cls.highlight_token and token > 0:
                 master_view.erase_regions(cls.regions_key)
 
         cls = self.__class__

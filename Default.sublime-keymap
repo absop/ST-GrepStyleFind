@@ -1,0 +1,10 @@
+[
+    {
+        "keys": ["ctrl+shift+g"],
+        "command": "line_finder_preview_input",
+    },
+    {
+        "keys": ["alt+z"],
+        "command": "line_finder_toggle_summary_panel",
+    }
+]
