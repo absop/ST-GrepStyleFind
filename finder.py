@@ -409,8 +409,8 @@ class LineFinderGotoMatchCommand(sublime_plugin.TextCommand):
                 self.view.run_command(fallback_command, new_args)
             return
         master_view = sublime.View(settings.get('master_view.id'))
-        if not master_view.is_valid():
-            sublime.status_message('The master view has changed')
+        if not master_view.is_valid() or master_view.window() is None:
+            sublime.status_message('The master view is no longer available')
             return
         region_jump_point = settings.get('master_view.region_jump_point')
         event = args['event']
